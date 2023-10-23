@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "biliscana"
+version = "0.1.0"
+description = ""
+authors = ["Nick Zeng <zenghongyi2004@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+gevent = "^23.9.1"
+pymongo = "^4.5.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
