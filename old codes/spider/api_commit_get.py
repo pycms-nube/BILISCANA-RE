@@ -88,9 +88,8 @@ def detect_replies(video_oid, root_rid, root_timestep, cookie_dict):
     ua = UserAgent()
     page_count = 0
     # Get the replies json information
-    replies_full_url = 'https://api.bilibili.com/x/v2/reply/reply?&jsonp=jsonp&pn=' + \
-        str(1)+'&type=1&oid='+str(video_oid) + \
-        '&ps=10&root='+str(root_rid)+'&_='+str(root_timestep)
+    replies_full_url = "https://api.bilibili.com/x/v2/reply/reply?&jsonp=jsonp&pn={}&type=1&oid={}&ps=10&root={}&_={}".format(
+        1, video_oid, root_rid, root_timestep)
     get_replies_proxy = get_proxy()
     ua_str = ua.random
     replies = requests.get(replies_full_url, proxies={"http": "http://{}".format(
@@ -146,10 +145,8 @@ def reply_get_online(video_oid, root_rid, root_timestep, all_user_dict, all_comm
 
         # Get the comments data
         print('Collecting on page : '+str(replay_page_now)+'/'+str(page_count))
-        replies_full_url = 'https://api.bilibili.com/x/v2/reply/reply?&jsonp=jsonp&pn=' + \
-            str(replay_page_now)+'&type=1&oid='+str(video_oid) + \
-            '&ps=10&root='+str(root_rid)+'&_='+str(root_timestep)
-
+        replies_full_url = "https://api.bilibili.com/x/v2/reply/reply?&jsonp=jsonp&pn={}&ps=10&root={}&_={}".format(
+            replay_page_now, root_rid, root_timestep)
         replies_get_proxy = get_proxy()
         ua_str = ua.random
         replies = requests.get(replies_full_url, proxies={"http": "http://{}".format(

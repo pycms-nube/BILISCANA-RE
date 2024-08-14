@@ -155,7 +155,7 @@ def main(timestep_file, timestep_add_mode, timestep_key_dire, page_countine_mode
                     timestep_add_mode = False
 
         # Build up the URL address
-        url = "https://www.bilibili.com/video/" + video_id
+        url = "https://www.bilibili.com/video/{}".format(video_id)
 
         # timestep_key_dire mode will write each timestep as a file, no need to use contuine mode
         if timestep_key_dire:
@@ -168,7 +168,7 @@ def main(timestep_file, timestep_add_mode, timestep_key_dire, page_countine_mode
 
         # Scroll down to bottom
 
-        json_get_url = 'https://api.bilibili.com/x/web-interface/view?bvid=' + video_id
+        json_get_url = 'https://api.bilibili.com/x/web-interface/view?bvid={}'.format(video_id)
         ua_str = ua.random
         oid_dire = requests.get(json_get_url, proxies={"http": "http://{}".format(requests.get(
             "http://localhost:5555/random").text.strip())}, headers={'User-Agent': ua_str}, cookies=cookie_dict)
@@ -256,7 +256,7 @@ def main(timestep_file, timestep_add_mode, timestep_key_dire, page_countine_mode
             continue_mode_enable = False
 
         page = 1
-        print("共计有" + str(max_page) + "页")
+        print("共计有 {} 页".format(max_page))
         # 初始化结束
         print("开始爬取")
         
@@ -275,17 +275,14 @@ def main(timestep_file, timestep_add_mode, timestep_key_dire, page_countine_mode
         # TODO: Try async this processing.
         while page < max_page or page == max_page and ssl_retry:
             try:
-                print("正在爬取" + str(page) + "/"+str(max_page) + "页")
-
-                json_get_url = 'https://api.bilibili.com/x/v2/reply?&jsonp=jsonp&pn=' + \
-                    str(page)+'&type=1&oid='+str(video_oid)
+                print("正在爬取 {}/{} 页".format(page, max_page))
+                json_get_url = "https://api.bilibili.com/x/v2/reply?&jsonp=jsonp&pn={}&type=1&oid={}".format(page, video_oid)
                 # time.strftime("%Y-%m-%d %H:%M:%S %Z", time.localtime())+' '+
                 if timestep_file:
                     # Convert timestep to bilibili server format, this will use muilt times
-                    json_path = str(page)+'_' + \
-                        str(time.time() * 10000000)+'.json'
+                    json_path = "{}_{}.json".format(page, time.time() * 10000000)
                 else:
-                    json_path = str(page)+'.json'
+                    json_path = "{},json".format(page)
                 video_commits_data = requests.get(
                     json_get_url, cookies=cookie_dict, proxies={"http": "http://{}".format(requests.get(
             "http://localhost:5555/random").text.strip())}).text
