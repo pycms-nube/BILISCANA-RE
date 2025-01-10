@@ -1,0 +1,38 @@
+# Here is all analyze and task making functions
+import gevent as ge
+import webrequest
+class Scheculder:
+    # Get all replies
+    def get_replies(video_oid, root_rid, root_timestep):
+        # We will call the api decect and get the data
+        replies_exits, replies, count, display_size = webrequest.request_replies(video_oid, root_rid, root_timestep)
+        if replies_exits == False:
+            return False, []
+        # This will hold all results, return as all dectected replies
+        replies_list = []
+        # caculate the right page number
+        if count % display_size == 0:
+            page_number = int(count / display_size)
+        else:
+            page_number = int(count / display_size) + 1
+        
+        jobs = []
+        # Fire up web request for each page
+        for page in range(0, page_number):
+            cur_greenlet = ge.spawn(webrequest.request_replies, video_oid, root_rid, root_timestep)
+            jobs.append(cur_greenlet)
+        
+        ge.joinall(jobs)
+        # Get the results, batch process to see if I can avoid cache being miss
+        for job in jobs:
+            cur_result = job.value
+            if cur_result[0] == True:
+                replies_list.extend(cur_result[1]["data"]["replies"])
+            else:
+                # future preserve 
+                pass
+        jobs = []
+        # Reroute all the jobs to data unit
+        for cur_replies in replies:
+            pass
+        

@@ -1,42 +1,47 @@
-# This module will handle the web requests
-import requests as req
 import gevent as gr
-import uuid as uuidlib
-import requests
 import json
+import requests
+import time
+
 
 class WebRequest:
-    _delay = 220
-    _worker_pool = gr.pool.Pool(1)
-    # Here is the login cookie, attach when we need to make request
-    _cookie = None
-    def request_api(request_url):
-        gr.sleep(WebRequest._delay)
+    _delay = 220  # Delay in milliseconds
+    _cookie = None  # Login cookies if needed
+    #FIXME: Something is wrong with grevent, it says I didn't pass in any args into the requests.get
+    @staticmethod
+    def request_api(request_url:str):
+        """Handles a web request with greenlet."""
+        gr.sleep(WebRequest._delay / 1000.0)
         worker = gr.spawn(requests.get, request_url)
         worker.join()
-        # need a error handle in here
+        if worker.value.status_code != 200:
+            raise RuntimeError(f"Request failed: {worker.value.status_code} {worker.value.reason}")
         return worker.value.content.decode('utf-8')
-    
-    # This helper function will help getting comments as needed
-    # In the old code, related code is too complex and not decouple from resolver
-    def request_comment_api(video_oid, page=1):
-        json_get_url = "https://api.bilibili.com/x/v2/reply?&jsonp=jsonp&pn={}&type=1&oid={}".format(page, video_oid)
-        result = WebRequest.request_api(json_get_url)
-        # Error handling here pending
-        return result
-    
-    # This helper function use to get if replies do exits, if so, also return count and data of it
-    def request_replies(video_oid, root_rid, root_timestep):
-        replies_full_url = "https://api.bilibili.com/x/v2/reply/reply?&jsonp=jsonp&pn={}&type=1&oid={}&ps=10&root={}&_={}".format(
-        1, video_oid, root_rid, root_timestep)
-        result = WebRequest.request_api(replies_full_url)
-        # Here we need to decode the json data
-        comment_data = json.loads(result)
-        if comment_data["data"]["page"]["count"] == 0:
-            return False, {},0,0
+
+    @staticmethod
+    def get_video_info(video_id:str):
+        """Fetches video information from the API."""
+        url = f"https://api.bilibili.com/x/web-interface/view?bvid={video_id}"
+        response = WebRequest.request_api(url)
+        return json.loads(response), time.time()
+
+    @staticmethod
+    def get_comments(video_oid:str|int, page:str|int = 1):
+        """Fetches comments for a given video OID and page."""
+        url = f"https://api.bilibili.com/x/v2/reply?&jsonp=jsonp&pn={page}&type=1&oid={video_oid}"
+        response = WebRequest.request_api(url)
+        return json.loads(response), time.time()
+
+    @staticmethod
+    def get_replies(video_oid:str|int, root_rid:str|int, root_timestep:str|int):
+        """Fetches replies for a comment based on its root ID."""
+        url = f"https://api.bilibili.com/x/v2/reply/reply?&jsonp=jsonp&pn=1&type=1&oid={video_oid}&ps=10&root={root_rid}&_={root_timestep}"
+        response = WebRequest.request_api(url)
+        comment_data = json.loads(response)
+        if comment_data['data']['page']['count'] == 0:
+            return False, {}, 0, 0, time.time()
         else:
-            return True, comment_data["data"], comment_data["data"]["page"]["count"], comment_data["data"]["page"]["size"]
-        
-    
-        
-    
+            page_info = comment_data['data']['page']
+            return True, comment_data['data'], page_info['count'], page_info['size'], time.time()
+
+

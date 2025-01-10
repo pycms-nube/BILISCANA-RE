@@ -9,6 +9,8 @@ readme = "README.md"
 python = "^3.10"
 gevent = "^23.9.1"
 pymongo = "^4.5.0"
+sqlalchemy = "^2.0.36"
+requests = "^2.32.3"
 
 
 [build-system]

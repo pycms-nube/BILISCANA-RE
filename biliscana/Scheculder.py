@@ -4,7 +4,7 @@ class Scheculder:
     bvid_list = []
     
 
-    def __init__():
+    def __init__(self):
         pass
     
     def manual_add_BVID(self):
