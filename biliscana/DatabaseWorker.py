@@ -26,3 +26,6 @@ class DatabaseWorker:
     def mongodb_insert(self):
         pass
     
+    def init():
+        # This helper helps the DB know what to do
+        

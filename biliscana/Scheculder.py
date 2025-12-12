@@ -25,7 +25,8 @@ class Scheculder:
             else:
                 self.total_pages = video_info.commit_number // 19
 
-            
+        # TODO: need rework on contine mode
+        
         pass
 
     
